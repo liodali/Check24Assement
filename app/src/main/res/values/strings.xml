@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">ShoppingC24</string>
+    <string name="server">https://app.check24.de</string>
+    <string name="loadingText">retrieve products</string>
+    <string name="Home">Product Overview</string>
+    <string name="detail">Product Detail</string>
+    <string name="web">web</string>
+</resources>
