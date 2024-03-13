@@ -36,31 +36,39 @@ import java.time.LocalTime
 
 @Composable
 fun ProductsList(
+    modifier: Modifier = Modifier,
     products: List<Product>,
+    favs: List<Int> = emptyList(),
     filter: Filter,
     onProductClick: (Product) -> Unit,
     clickFooter: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     val list = when {
-        filter == Filter.Alle  -> products
+        filter == Filter.Alle -> products
         filter == Filter.AV -> products.filter { product -> product.available }
-        else -> products
-    }
-    LazyColumn(modifier) {
-        items(list) { product ->
-            ProductItem(product, onProductClick)
+        else -> products.filter { product ->
+            favs.contains(product.id)
         }
-        item {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(32.dp)
-            ) {
-                FooterProductOver(clickFooter = clickFooter)
+    }
+    if (list.isEmpty()) {
+        Center {
+            Text(text = "no favorite products")
+        }
+    } else
+        LazyColumn(modifier) {
+            items(list) { product ->
+                ProductItem(product, onProductClick)
+            }
+            item {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(32.dp)
+                ) {
+                    FooterProductOver(clickFooter = clickFooter)
+                }
             }
         }
-    }
 }
 
 @Composable
@@ -92,12 +100,14 @@ fun ProductItem(product: Product, onClick: (Product) -> Unit) {
 
 
             else -> Row(modifier = Modifier.padding(12.dp)) {
-                ProductItemDetail(product,Modifier.weight(0.75f))
+                ProductItemDetail(product, Modifier.weight(0.75f))
                 SpacerWidth(width = 8.dp)
                 AsyncImage(
                     model = product.imageURL,
                     contentDescription = product.imageURL,
-                    modifier = Modifier.align(Alignment.CenterVertically).size(56.dp)
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .size(56.dp)
                 )
 
 
@@ -108,7 +118,7 @@ fun ProductItem(product: Product, onClick: (Product) -> Unit) {
 }
 
 @Composable
-fun ProductItemDetail(product: Product,modifier:Modifier = Modifier) {
+fun ProductItemDetail(product: Product, modifier: Modifier = Modifier) {
     Column(modifier) {
         Row {
             Text(

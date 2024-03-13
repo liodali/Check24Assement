@@ -25,6 +25,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -37,14 +41,30 @@ import mohamedali.hamza.shoppingc24.ui.component.StarRatingBar
 import mohamedali.hamza.shoppingc24.viewmodel.MainViewModel
 
 @Composable
-fun ProductDetailPage(modifier: Modifier, viewModel: MainViewModel, clickFooter: () -> Unit) {
+fun ProductDetailPage(
+    modifier: Modifier,
+    viewModel: MainViewModel, clickFooter: () -> Unit
+) {
     val product = viewModel.productFlowSelected.collectAsState().value!!
-    ProductBody(product, {}, clickFooter, modifier)
+    var isFav by remember {
+        mutableStateOf(viewModel.isFav(product.id))
+    }
+    ProductBody(
+        product, isFav,
+        onFavUnFavClick = {
+            when {
+                isFav -> viewModel.removeToFav(product)
+                else -> viewModel.addToFav(product)
+            }
+            isFav = !isFav
+        }, clickFooter, modifier
+    )
 }
 
 @Composable
 fun ProductBody(
     product: Product,
+    isFav: Boolean = false,
     onFavUnFavClick: () -> Unit,
     clickFooter: () -> Unit,
     modifier: Modifier
@@ -77,15 +97,20 @@ fun ProductBody(
         )
         Button(
             colors = ButtonDefaults.buttonColors().copy(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
+                containerColor = MaterialTheme.colorScheme.primary
             ),
             shape = RoundedCornerShape(2.dp),
-            onClick = { /*TODO*/ },
+            onClick = onFavUnFavClick,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)
         ) {
-            Text(text = "Vormerken")
+            Text(
+                text = when {
+                    !isFav -> "Vormerken"
+                    else -> "Vergessen"
+                }
+            )
         }
         Box(Modifier.weight(0.5f)) {
             LongDescription(product.longDescription)

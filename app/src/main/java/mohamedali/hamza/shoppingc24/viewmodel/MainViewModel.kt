@@ -17,6 +17,8 @@ import mohamedali.hamza.shoppingc24.commons.Filter
 
 class MainViewModel(private val repository: ProductRepository) : ViewModel() {
     var filterToApply: Filter by mutableStateOf(Filter.Alle)
+    private var mutableFavorites: MutableStateFlow<List<Int>> = MutableStateFlow(emptyList())
+    val produtcsFavs: StateFlow<List<Int>> = mutableFavorites
     private var mutableStateFlow: MutableStateFlow<IResponse> =
         MutableStateFlow(MyResponse.NoResponse<Any>())
 
@@ -38,6 +40,7 @@ class MainViewModel(private val repository: ProductRepository) : ViewModel() {
                     mutableStateFlow.value = MyResponse.ErrorResponse<Any>(error = "No Data Found")
                     currentError = -1
                 }
+
                 else -> {
                     val response = repository.retrieveProducts()
                     delay(1000)
@@ -49,10 +52,27 @@ class MainViewModel(private val repository: ProductRepository) : ViewModel() {
 
         }
     }
-    fun selectProduct(product: Product){
+
+    fun addToFav(product: Product) {
+        val list = mutableFavorites.value.toMutableList()
+        list.add(product.id)
+        mutableFavorites.value = list
+    }
+
+    fun removeToFav(product: Product) {
+        val list = mutableFavorites.value.toMutableList()
+        list.remove(product.id)
+        mutableFavorites.value = list
+    }
+
+    fun isFav(productId: Int) = mutableFavorites.value.contains(productId)
+
+
+    fun selectProduct(product: Product) {
         mutableStateFlowSelectedProduct.value = product
     }
-    fun filter(filter:Filter){
+
+    fun filter(filter: Filter) {
         filterToApply = filter
     }
 }

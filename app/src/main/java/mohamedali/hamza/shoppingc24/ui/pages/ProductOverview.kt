@@ -56,6 +56,7 @@ fun ProductOverviewPage(
         mutableStateOf(false)
     }
     val productStateData = viewModel.productsFlow.collectAsState()
+    val favs =  viewModel.produtcsFavs.collectAsState()
     val response = productStateData.value
     val coroutineScope = rememberCoroutineScope()
     val pullRefreshState = rememberPullRefreshState(
@@ -74,6 +75,7 @@ fun ProductOverviewPage(
         response is MyResponse.SuccessResponse<*> -> Box {
             ProductOverviewBody(
                 response.data as ProductOverviews,
+                favs = favs.value,
                 onProductClick,
                 filter = viewModel.filterToApply,
                 clickFooter = clickFooter,
@@ -109,6 +111,7 @@ fun ProductOverviewPage(
 @Composable
 fun ProductOverviewBody(
     productOverviews: ProductOverviews,
+    favs: List<Int> = emptyList(),
     onProductClick: (Product) -> Unit,
     filter: Filter,
     clickFooter: () -> Unit,
@@ -131,6 +134,7 @@ fun ProductOverviewBody(
         ProductsList(
             modifier = Modifier.weight(0.7f),
             products = productOverviews.products,
+            favs = favs,
             onProductClick = onProductClick,
             clickFooter = clickFooter,
             filter = filter
